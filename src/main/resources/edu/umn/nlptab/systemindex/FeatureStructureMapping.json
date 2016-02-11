@@ -1,0 +1,31 @@
+{
+  "FeatureStructure": {
+    "dynamic_templates": [
+      {
+        "string_template": {
+          "path_match": "*",
+          "match_mapping_type": "string",
+          "mapping": {
+            "type": "string",
+            "index": "not_analyzed",
+            "fields": {
+              "analyzed": {
+                "type": "string"
+              }
+            }
+          }
+        }
+      }
+    ],
+    "properties": {
+      "documentLocations": {
+        "type": "nested",
+        "properties": {
+          "begin": {"type": "integer"},
+          "end": {"type": "integer"},
+          "distance": {"type": "integer"}
+        }
+      }
+    }
+  }
+}

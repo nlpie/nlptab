@@ -1,0 +1,21 @@
+{
+  "analysis": {
+    "analyzer": {
+      "type_name_search_analyzer": {
+        "tokenizer": "keyword",
+        "filter": ["lowercase"]
+      },
+      "type_name_analyzer": {
+        "tokenizer": "keyword",
+        "filter": ["lowercase", "my_nGram"]
+      }
+    },
+    "filter": {
+      "my_nGram": {
+        "type": "nGram",
+        "min_gram": 1,
+        "max_gram": 13
+      }
+    }
+  }
+}

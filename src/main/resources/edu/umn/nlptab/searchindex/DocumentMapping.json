@@ -1,0 +1,28 @@
+{
+    "Document": {
+        "dynamic_templates": [
+            {
+                "string_template": {
+                    "path_match": "*",
+                    "match_mapping_type": "string",
+                    "mapping": {
+                        "type": "string",
+                        "index": "analyzed",
+                        "index_options": "freqs",
+                        "analyzer": "keyword",
+                        "search_analyzer": "keyword"
+
+                    }
+                }
+            }
+        ],
+        "properties": {
+            "text": {
+                "type": "string",
+                "index": "analyzed",
+                "analyzer": "english",
+                "search_analyzer": "english"
+            }
+        }
+    }
+}

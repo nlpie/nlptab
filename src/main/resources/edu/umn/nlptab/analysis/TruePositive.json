@@ -1,0 +1,31 @@
+{
+  "TruePositive": {
+    "properties": {
+      "analysisId": {
+        "type": "string",
+        "analyzer": "keyword",
+        "search_analyzer": "keyword"
+      },
+      "firstSystem": {
+        "type": "string",
+        "analyzer": "keyword",
+        "search_analyzer": "keyword"
+      },
+      "firstId": {
+        "type": "string",
+        "analyzer": "keyword",
+        "search_analyzer": "keyword"
+      },
+      "secondSystem": {
+        "type": "string",
+        "analyzer": "keyword",
+        "search_analyzer": "keyword"
+      },
+      "secondId": {
+        "type": "string",
+        "analyzer": "keyword",
+        "search_analyzer": "keyword"
+      }
+    }
+  }
+}

@@ -1,0 +1,34 @@
+{
+  "MatchCounts": {
+    "properties": {
+      "hypothesisUnitOfAnalysis": {
+        "properties": {
+          "systemIndex": {
+            "type": "string",
+            "analyzer": "keyword",
+            "search_analyzer": "keyword"
+          },
+          "typeName": {
+            "type": "string",
+            "analyzer": "type_name_analyzer",
+            "search_analyzer": "type_name_search_analyzer"
+          }
+        }
+      },
+      "referenceUnitOfAnalysis": {
+        "properties": {
+          "systemIndex": {
+            "type": "string",
+            "analyzer": "keyword",
+            "search_analyzer": "keyword"
+          },
+          "typeName": {
+            "type": "string",
+            "analyzer": "type_name_analyzer",
+            "search_analyzer": "type_name_search_analyzer"
+          }
+        }
+      }
+    }
+  }
+}

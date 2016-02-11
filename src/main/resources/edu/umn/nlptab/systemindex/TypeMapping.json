@@ -1,0 +1,87 @@
+{
+    "Type" : {
+        "properties" : {
+            "typeName": {
+                "type": "string",
+                "index": "not_analyzed"
+            },
+            "typeShortName" : {
+                "type": "string",
+                "fields": {
+                    "raw": {
+                        "type": "string",
+                        "index": "not_analyzed"
+                    }
+                },
+                "analyzer": "type_name_analyzer",
+                "search_analyzer": "type_name_search_analyzer"
+            },
+            "primitiveFeatures" : {
+                "type" : "nested",
+                "properties" : {
+                    "shortName" : {
+                        "type": "string",
+                        "fields": {
+                            "raw": {
+                                "type": "string",
+                                "index": "not_analyzed"
+                            }
+                        },
+                        "analyzer": "type_name_analyzer",
+                        "search_analyzer": "type_name_search_analyzer"
+                    },
+                    "name" : {
+                        "type": "string",
+                        "index": "not_analyzed"
+                    },
+                    "valueType" : {
+                        "type": "string",
+                        "index": "not_analyzed"
+                    }
+                }
+            },
+            "referenceFeatures" : {
+                "type" : "nested",
+                "properties" : {
+                    "shortName" : {
+                        "type": "string",
+                        "fields": {
+                            "raw": {
+                                "type": "string",
+                                "index": "not_analyzed"
+                            }
+                        },
+                        "analyzer": "type_name_analyzer",
+                        "search_analyzer": "type_name_search_analyzer"
+                    },
+                    "name" : {
+                        "type": "string",
+                        "index": "not_analyzed"
+                    },
+                    "valueType" : {
+                        "type": "string",
+                        "fields": {
+                            "raw": {
+                                "type": "string",
+                                "index": "not_analyzed"
+                            }
+                        },
+                        "analyzer": "type_name_analyzer",
+                        "search_analyzer": "type_name_search_analyzer"
+                    }
+                }
+            },
+            "parentTypes" : {
+                "type": "string",
+                "fields": {
+                    "raw": {
+                        "type": "string",
+                        "index": "not_analyzed"
+                    }
+                },
+                "analyzer": "type_name_analyzer",
+                "search_analyzer": "type_name_search_analyzer"
+            }
+        }
+    }
+}

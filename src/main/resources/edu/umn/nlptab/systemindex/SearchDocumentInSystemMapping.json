@@ -1,0 +1,25 @@
+{
+    "DocumentInSystem" : {
+        "_parent" : {
+            "type" : "Document"
+        },
+        "properties" : {
+            "systemIndex" : {
+                "type" : "string",
+                "index" : "not_analyzed"
+            },
+            "casIdentifier" : {
+                "type" : "string",
+                "index" : "not_analyzed"
+            },
+            "casViewIdentifier" : {
+                "type" : "string",
+                "index" : "not_analyzed"
+            },
+            "documentIdentifier" : {
+                "type" : "string",
+                "index" : "not_analyzed"
+            }
+        }
+    }
+}

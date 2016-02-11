@@ -1,0 +1,29 @@
+{
+  "SystemIndex": {
+    "properties": {
+      "index": {
+        "type": "string",
+        "index": "not_analyzed"
+      },
+      "system": {
+        "type": "string",
+        "fields": {
+          "raw": {
+            "type": "string",
+            "index": "not_analyzed"
+          }
+        }
+      },
+      "created": {
+        "type": "date"
+      },
+      "version": {
+        "type": "string",
+        "index": "not_analyzed"
+      },
+      "ready": {
+        "type": "boolean"
+      }
+    }
+  }
+}
