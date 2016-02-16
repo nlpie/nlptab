@@ -1,0 +1,12 @@
+# Routes
+# This file defines all application routes (Higher priority routes first)
+# ~~~~
+
+# Home page
+
+GET     /                           controllers.Application.index()
+
+GET     /_system/:id                @controllers.Systems.withId(id: Long)
+GET     /_workspace/:id/systems     @controllers.Systems.withWorkspaceId(id: Long)
+
+GET     /assets/*file               controllers.Assets.versioned(path="/public", file: Asset)

@@ -60,7 +60,7 @@
     <build>
         <resources>
             <resource>
-                <directory>src/main/resources</directory>
+                <directory>old/src/main/resources</directory>
                 <filtering>true</filtering>
                 <includes>
                     <include>**/*.properties</include>
@@ -68,7 +68,7 @@
                 </includes>
             </resource>
             <resource>
-                <directory>src/main/resources</directory>
+                <directory>old/src/main/resources</directory>
                 <filtering>false</filtering>
                 <excludes>
                     <exclude>**/*.properties</exclude>
