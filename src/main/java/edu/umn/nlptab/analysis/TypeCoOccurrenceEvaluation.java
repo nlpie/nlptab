@@ -50,10 +50,13 @@ class TypeCoOccurrenceEvaluation {
     @Nullable
     private String documentId;
 
+    @Nullable
     private AnalysisConfig analysisConfig;
 
+    @Nullable
     private String index;
 
+    @Nullable
     private String analysisId;
 
     @Inject
@@ -86,10 +89,27 @@ class TypeCoOccurrenceEvaluation {
     }
 
     CoOccurrenceCounts computeCoOccurrenceCounts() throws IOException, InterruptedException, NlpTabException {
+        if (analysisConfig == null) {
+            throw new IllegalStateException("analysisConfig not initialized");
+        }
+
+        if (index == null) {
+            throw new IllegalStateException("index not initialized");
+        }
+
+        if (analysisId == null) {
+            throw new IllegalStateException("analysisId not initialized");
+        }
+
+        if (documentId == null) {
+            throw new IllegalStateException("documentId not initialized");
+        }
+
         BulkRequestBuilder bulkRequestBuilder = client.prepareBulk();
 
-        try (FsDataSource firstSource = new FsDataSource(client, Objects.requireNonNull(documentId),
-                analysisConfig.getHypothesis())) {
+        UnitOfAnalysis hypothesis = analysisConfig.getHypothesis();
+        UnitOfAnalysis reference = analysisConfig.getReference();
+        try (FsDataSource firstSource = new FsDataSource(client, documentId, hypothesis)) {
             FsDataSourceIterator firstIterator = new FsDataSourceIterator(firstSource);
             while (firstIterator.hasNext()) {
                 SearchHit searchHit = firstIterator.next();
@@ -106,9 +126,7 @@ class TypeCoOccurrenceEvaluation {
                 matchUploadable.setIndex(index);
                 matchUploadable.setAnalysisId(analysisId);
                 matchUploadable.setFirstId(searchHit.getId());
-                UnitOfAnalysis hypothesis = analysisConfig.getHypothesis();
                 matchUploadable.setFirstPath(hypothesis);
-                UnitOfAnalysis reference = analysisConfig.getReference();
                 matchUploadable.setSecondPath(reference);
 
                 if (matchingId != null) {
@@ -147,7 +165,7 @@ class TypeCoOccurrenceEvaluation {
         }
 
         if (!analysisConfig.isHitMiss()) {
-            try (FsDataSource secondSource = new FsDataSource(client, documentId, analysisConfig.getReference())) {
+            try (FsDataSource secondSource = new FsDataSource(client, documentId, reference)) {
                 FsDataSourceIterator secondIterator = new FsDataSourceIterator(secondSource);
 
                 while (secondIterator.hasNext()) {
@@ -162,8 +180,6 @@ class TypeCoOccurrenceEvaluation {
                     if (matchingId == null) {
                         coOccurrenceCounts.incrementSecondOnly();
 
-                        UnitOfAnalysis reference = analysisConfig.getReference();
-                        UnitOfAnalysis hypothesis = analysisConfig.getHypothesis();
                         String closestId = closestFsFinderProvider.get()
                                 .withDocumentId(documentId)
                                 .withFeatureStructure(featureStructure)

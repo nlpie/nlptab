@@ -44,9 +44,10 @@ class FsDataSource implements Closeable {
     @Nullable
     private SearchResponse response;
 
+    @Nullable
     private SearchHit[] hits;
 
-    public FsDataSource(Client client, String documentIdentifier, UnitOfAnalysis unitOfAnalysis) {
+    FsDataSource(Client client, String documentIdentifier, UnitOfAnalysis unitOfAnalysis) {
         this.client = client;
         this.documentIdentifier = documentIdentifier;
         this.unitOfAnalysis = unitOfAnalysis;
