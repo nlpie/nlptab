@@ -106,6 +106,7 @@ class UnitOfAnalysis {
         for (Map<String, Object> filterObject : filtersJson) {
             UnitOfAnalysisFilter unitOfAnalysisFilter = unitOfAnalysisFilterProvider.get();
             unitOfAnalysisFilter.initFromJsonMap(filterObject);
+            analysisFilters.add(unitOfAnalysisFilter);
         }
     }
 
