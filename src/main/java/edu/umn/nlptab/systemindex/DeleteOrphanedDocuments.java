@@ -49,7 +49,7 @@ public class DeleteOrphanedDocuments implements Runnable {
                 .setTypes("Document")
                 .setQuery(QueryBuilders.boolQuery()
                         .mustNot(QueryBuilders.hasChildQuery("DocumentInSystem", QueryBuilders.matchAllQuery())))
-                .setSize(Integer.MAX_VALUE)
+                .setSize(9999)
                 .get();
 
         BulkRequestBuilder bulkRequestBuilder = client.prepareBulk();

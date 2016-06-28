@@ -16,11 +16,16 @@
 
 package edu.umn.nlptab.analysis;
 
+import org.elasticsearch.common.inject.Inject;
+import org.elasticsearch.common.inject.Provider;
 import org.elasticsearch.common.xcontent.XContentBuilder;
 import org.elasticsearch.index.query.BoolQueryBuilder;
 import org.elasticsearch.index.query.QueryBuilders;
 
+import javax.annotation.Nullable;
 import java.io.IOException;
+import java.util.ArrayList;
+import java.util.List;
 import java.util.Map;
 
 /**
@@ -30,47 +35,79 @@ import java.util.Map;
  * @since 1.0
  */
 class UnitOfAnalysis {
+    private final Provider<UnitOfAnalysisFilter> unitOfAnalysisFilterProvider;
+
     /**
      * The system index to run against.
      */
-    private final String systemIndex;
+    @Nullable
+    private String systemIndex;
 
     /**
      * The type to run against.
      */
-    private final String type;
+    @Nullable
+    private String type;
 
-    UnitOfAnalysis(String systemIndex, String type) {
-        this.systemIndex = systemIndex;
-        this.type = type;
+    /**
+     * Filters to apply
+     */
+    @Nullable
+    private List<UnitOfAnalysisFilter> analysisFilters;
+
+    @Inject
+    UnitOfAnalysis(Provider<UnitOfAnalysisFilter> unitOfAnalysisFilterProvider) {
+        this.unitOfAnalysisFilterProvider = unitOfAnalysisFilterProvider;
     }
 
     String getSystemIndex() {
+        if (systemIndex == null) {
+            throw new IllegalStateException("system index not initialized");
+        }
         return systemIndex;
     }
 
     String getType() {
+        if (type == null) {
+            throw new IllegalStateException("type not initialized");
+        }
         return type;
     }
 
     BoolQueryBuilder queryInDocument(String documentId) {
-        return QueryBuilders.boolQuery()
+        if (type == null) {
+            throw new IllegalStateException("type not initialized");
+        }
+        if (analysisFilters == null) {
+            throw new IllegalStateException("analysisFilters not initialized");
+        }
+
+        BoolQueryBuilder boolQuery = QueryBuilders.boolQuery()
                 .must(QueryBuilders.termQuery("types", type))
                 .must(QueryBuilders.termQuery("documentIdentifier", documentId));
+        for (UnitOfAnalysisFilter analysisFilter : analysisFilters) {
+            boolQuery.must(analysisFilter.buildQuery());
+        }
+        return boolQuery;
     }
 
-    void append(XContentBuilder xContentBuilder) throws IOException {
+    void appendTo(XContentBuilder xContentBuilder) throws IOException {
         xContentBuilder.field("systemIndex", systemIndex)
                 .field("typeName", type);
     }
 
-    public static UnitOfAnalysis createFromJsonMap(Map<String, Object> jsonMap) throws AnalysisConfigurationException {
-        String selectedSystem = (String) jsonMap.get("selectedSystem");
-        String selectedType = (String) jsonMap.get("selectedType");
-        if (selectedSystem == null || selectedType == null) {
-            throw new AnalysisConfigurationException("system or type were null in unit of analysis config");
+    void initFromJsonMap(Map<String, Object> jsonMap) throws AnalysisConfigurationException {
+        systemIndex = (String) jsonMap.get("selectedSystem");
+        type = (String) jsonMap.get("selectedType");
+
+        @SuppressWarnings("unchecked")
+        List<Map<String, Object>> filtersJson = (List<Map<String, Object>>) jsonMap.get("filters");
+        analysisFilters = new ArrayList<>(filtersJson.size());
+        for (Map<String, Object> filterObject : filtersJson) {
+            UnitOfAnalysisFilter unitOfAnalysisFilter = unitOfAnalysisFilterProvider.get();
+            unitOfAnalysisFilter.initFromJsonMap(filterObject);
+            analysisFilters.add(unitOfAnalysisFilter);
         }
-        return new UnitOfAnalysis(selectedSystem, selectedType);
     }
 
     @Override

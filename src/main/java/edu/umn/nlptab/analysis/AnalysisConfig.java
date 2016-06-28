@@ -21,6 +21,7 @@ import org.elasticsearch.common.inject.Inject;
 import org.elasticsearch.common.inject.Provider;
 import org.elasticsearch.common.xcontent.XContentBuilder;
 
+import javax.annotation.Nullable;
 import java.io.IOException;
 import java.util.ArrayList;
 import java.util.Collection;
@@ -28,19 +29,29 @@ import java.util.List;
 import java.util.Map;
 
 /**
+ * Configuration for an analysis task.
  *
+ * @author Ben Knoll
+ * @since 1.0
  */
 public class AnalysisConfig {
     private final Provider<FeatureValueMapping> featureValueMappingProvider;
 
+    private final Provider<UnitOfAnalysis> unitOfAnalysisProvider;
+
+    @Nullable
     private Collection<FeatureValueMapping> featureValueMappings;
 
+    @Nullable
     private UnitOfAnalysis hypothesis;
 
+    @Nullable
     private UnitOfAnalysis reference;
 
+    @Nullable
     private InstanceIndexes instanceIndexes;
 
+    @Nullable
     private String description;
 
     private int fuzzDistance;
@@ -48,8 +59,10 @@ public class AnalysisConfig {
     private boolean hitMiss;
 
     @Inject
-    public AnalysisConfig(Provider<FeatureValueMapping> featureValueMappingProvider) {
+    public AnalysisConfig(Provider<FeatureValueMapping> featureValueMappingProvider,
+                          Provider<UnitOfAnalysis> unitOfAnalysisProvider) {
         this.featureValueMappingProvider = featureValueMappingProvider;
+        this.unitOfAnalysisProvider = unitOfAnalysisProvider;
     }
 
     public void initFromMap(Map<String, Object> jsonMap) throws AnalysisConfigurationException {
@@ -58,14 +71,16 @@ public class AnalysisConfig {
         if (hypothesisUnitOfAnalysisMap == null) {
             throw new AnalysisConfigurationException("null first unit of analysis");
         }
-        hypothesis = UnitOfAnalysis.createFromJsonMap(hypothesisUnitOfAnalysisMap);
+        hypothesis = unitOfAnalysisProvider.get();
+        hypothesis.initFromJsonMap(hypothesisUnitOfAnalysisMap);
 
         @SuppressWarnings("unchecked")
         Map<String, Object> secondUnitOfAnalysisMap = (Map<String, Object>) jsonMap.get("referenceUnitOfAnalysis");
         if (secondUnitOfAnalysisMap == null) {
             throw new AnalysisConfigurationException("null second unit of analysis");
         }
-        reference = UnitOfAnalysis.createFromJsonMap(secondUnitOfAnalysisMap);
+        reference = unitOfAnalysisProvider.get();
+        reference.initFromJsonMap(secondUnitOfAnalysisMap);
 
         String instance = (String) jsonMap.get("instance");
         if (instance == null) {
@@ -113,14 +128,23 @@ public class AnalysisConfig {
     }
 
     UnitOfAnalysis getHypothesis() {
+        if (hypothesis == null) {
+            throw new IllegalStateException("hypothesis not initialized");
+        }
         return hypothesis;
     }
 
     UnitOfAnalysis getReference() {
+        if (reference == null) {
+            throw new IllegalStateException("reference not initialized");
+        }
         return reference;
     }
 
     InstanceIndexes getInstanceIndexes() {
+        if (instanceIndexes == null) {
+            throw new IllegalStateException("instanceIndexes not initialized");
+        }
         return instanceIndexes;
     }
 
@@ -129,6 +153,10 @@ public class AnalysisConfig {
     }
 
     Collection<FeatureValueTester> createFeatureStructureTesters(Map<String, Object> hypothesisFeatureStructure) {
+        if (featureValueMappings == null) {
+            throw new IllegalStateException("featureValueMappings not initialized");
+        }
+
         Collection<FeatureValueTester> featureStructureTesters = new ArrayList<>();
 
         for (FeatureValueMapping featureValueMapping : featureValueMappings) {
@@ -140,6 +168,9 @@ public class AnalysisConfig {
     }
 
     Collection<FeatureValueTester> createConverseFeatureStructureTesters(Map<String, Object> referenceFeatureStructure) {
+        if (featureValueMappings == null) {
+            throw new IllegalStateException("featureValueMappings not initialized");
+        }
         Collection<FeatureValueTester> featureStructureTesters = new ArrayList<>();
 
         for (FeatureValueMapping featureValueMapping : featureValueMappings) {
@@ -151,11 +182,21 @@ public class AnalysisConfig {
     }
 
     void append(XContentBuilder xContentBuilder) throws IOException {
+        if (hypothesis == null) {
+            throw new IllegalStateException("hypothesis not initialized");
+        }
+        if (reference == null) {
+            throw new IllegalStateException("reference not initialized");
+        }
+        if (featureValueMappings == null) {
+            throw new IllegalStateException("featureValueMappings not initialized");
+        }
+
         xContentBuilder.startObject("hypothesisUnitOfAnalysis");
-        hypothesis.append(xContentBuilder);
+        hypothesis.appendTo(xContentBuilder);
         xContentBuilder.endObject();
         xContentBuilder.startObject("referenceUnitOfAnalysis");
-        reference.append(xContentBuilder);
+        reference.appendTo(xContentBuilder);
         xContentBuilder.endObject();
 
         xContentBuilder.field("description", description);

@@ -57,7 +57,10 @@ public class AnalysisRunner {
     private AnalysisConfig analysisConfig;
 
     @Inject
-    AnalysisRunner(CoOccurrenceCounts coOccurrenceCounts, Provider<TypeCoOccurrenceEvaluation> typeCoOccurrenceEvaluationProvider, Provider<ElasticSearchSetup> esSetupProvider, Client client) {
+    AnalysisRunner(CoOccurrenceCounts coOccurrenceCounts,
+                   Provider<TypeCoOccurrenceEvaluation> typeCoOccurrenceEvaluationProvider,
+                   Provider<ElasticSearchSetup> esSetupProvider,
+                   Client client) {
         this.coOccurrenceCounts = coOccurrenceCounts;
         this.typeCoOccurrenceEvaluationProvider = typeCoOccurrenceEvaluationProvider;
         this.esSetupProvider = esSetupProvider;
