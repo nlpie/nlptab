@@ -16,6 +16,7 @@
 
 package edu.umn.nlptab.analysis;
 
+import com.google.common.base.Preconditions;
 import org.elasticsearch.action.index.IndexRequestBuilder;
 import org.elasticsearch.client.Client;
 import org.elasticsearch.common.inject.Inject;
@@ -36,22 +37,22 @@ class MatchUploadable {
     }
 
     private final Client client;
-
-    private String analysisId;
-
-    private String index;
-
-    private UnitOfAnalysis firstPath;
-
-    @Nullable
-    private String firstId;
-
-    private UnitOfAnalysis secondPath;
-
-    @Nullable
-    private String secondId;
-
-    private MatchType matchType;
+    @Nullable private String analysisId;
+    @Nullable private String index;
+    @Nullable private UnitOfAnalysis firstPath;
+    @Nullable private String firstId;
+    @Nullable private UnitOfAnalysis secondPath;
+    @Nullable private String secondId;
+    @Nullable private MatchType matchType;
+    @Nullable private String documentId;
+    private int begin = -1;
+    private int end = -1;
+    @Nullable private String firstValues;
+    @Nullable private String secondValues;
+    private boolean firstIsPresent;
+    private boolean firstMatches;
+    private boolean secondIsPresent;
+    private boolean secondMatches;
 
     @Inject
     MatchUploadable(Client client) {
@@ -86,6 +87,26 @@ class MatchUploadable {
         this.matchType = matchType;
     }
 
+    void setDocumentId(String documentId) {
+        this.documentId = documentId;
+    }
+
+    public void setBegin(int begin) {
+        this.begin = begin;
+    }
+
+    public void setEnd(int end) {
+        this.end = end;
+    }
+
+    void setFirstValues(String firstValues) {
+        this.firstValues = firstValues;
+    }
+
+    void setSecondValues(String secondValues) {
+        this.secondValues = secondValues;
+    }
+
     private String getElasticSearchType() {
         switch (matchType) {
             case TRUE_POSITIVE:
@@ -99,15 +120,42 @@ class MatchUploadable {
         }
     }
 
+    public void setFirstIsPresent(boolean firstIsPresent) {
+        this.firstIsPresent = firstIsPresent;
+    }
+
+    public void setFirstMatches(boolean firstMatches) {
+        this.firstMatches = firstMatches;
+    }
+
+    public void setSecondIsPresent(boolean secondIsPresent) {
+        this.secondIsPresent = secondIsPresent;
+    }
+
+    public void setSecondMatches(boolean secondMatches) {
+        this.secondMatches = secondMatches;
+    }
+
     IndexRequestBuilder buildRequest() throws IOException {
+        Preconditions.checkNotNull(firstPath);
+        Preconditions.checkNotNull(secondPath);
         return client.prepareIndex(index, getElasticSearchType())
                 .setSource(XContentFactory.jsonBuilder()
                         .startObject()
                         .field("analysisId", analysisId)
                         .field("firstSystem", firstPath.getSystemIndex())
                         .field("firstId", firstId)
+                        .field("firstIsPresent", firstIsPresent)
+                        .field("firstMatches", firstMatches)
+                        .field("firstValues", firstValues)
                         .field("secondSystem", secondPath.getSystemIndex())
                         .field("secondId", secondId)
+                        .field("secondIsPresent", secondIsPresent)
+                        .field("secondMatches", secondMatches)
+                        .field("secondValues", secondValues)
+                        .field("documentId", documentId)
+                        .field("begin", begin)
+                        .field("end", end)
                         .endObject());
     }
 

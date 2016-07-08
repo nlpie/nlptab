@@ -20,6 +20,7 @@ import org.elasticsearch.common.inject.Inject;
 import org.elasticsearch.common.inject.Provider;
 import org.elasticsearch.common.xcontent.XContentBuilder;
 
+import javax.annotation.Nullable;
 import java.io.IOException;
 import java.util.*;
 import java.util.stream.Collectors;
@@ -32,15 +33,15 @@ class FeatureValueMapping {
 
     private final Provider<FeatureValueTester> featureValueTesterProvider;
 
-    private Feature hypothesisFeature;
+    @Nullable private Feature hypothesisFeature;
 
-    private Feature referenceFeature;
+    @Nullable private Feature referenceFeature;
 
-    private EquivalenceTest equivalenceTest;
+    @Nullable private EquivalenceTest equivalenceTest;
 
-    private Map<Object, Set<Object>> valueMappings;
+    @Nullable private Map<Object, Set<Object>> valueMappings;
 
-    private Map<Object, Set<Object>> converseValueMappings;
+    @Nullable private Map<Object, Set<Object>> converseValueMappings;
 
     @Inject
     FeatureValueMapping(Provider<Feature> featureProvider, Provider<FeatureValueTester> featureValueTesterProvider) {

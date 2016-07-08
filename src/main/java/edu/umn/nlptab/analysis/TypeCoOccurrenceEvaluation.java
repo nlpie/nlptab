@@ -27,7 +27,6 @@ import org.elasticsearch.search.SearchHit;
 import javax.annotation.Nullable;
 import java.io.IOException;
 import java.util.Map;
-import java.util.Objects;
 
 /**
  * Evaluates one type against another, determining if they exist at the same location.
@@ -38,26 +37,14 @@ import java.util.Objects;
 class TypeCoOccurrenceEvaluation {
 
     private final Client client;
-
     private final Provider<FsMatcher> fsMatcherProvider;
-
     private final CoOccurrenceCounts coOccurrenceCounts;
-
     private final Provider<MatchUploadable> matchUploadableProvider;
-
     private final Provider<ClosestFsFinder> closestFsFinderProvider;
-
-    @Nullable
-    private String documentId;
-
-    @Nullable
-    private AnalysisConfig analysisConfig;
-
-    @Nullable
-    private String index;
-
-    @Nullable
-    private String analysisId;
+    @Nullable private String documentId;
+    @Nullable private AnalysisConfig analysisConfig;
+    @Nullable private String index;
+    @Nullable private String analysisId;
 
     @Inject
     TypeCoOccurrenceEvaluation(Client client,
@@ -128,6 +115,19 @@ class TypeCoOccurrenceEvaluation {
                 matchUploadable.setFirstId(searchHit.getId());
                 matchUploadable.setFirstPath(hypothesis);
                 matchUploadable.setSecondPath(reference);
+                matchUploadable.setDocumentId(documentId);
+
+                @SuppressWarnings("unchecked")
+                Map<String, Object> primaryLocation = (Map<String, Object>) featureStructure.get("primaryLocation");
+
+                matchUploadable.setBegin((int) primaryLocation.get("begin"));
+                matchUploadable.setEnd((int) primaryLocation.get("end"));
+                matchUploadable.setFirstValues(fsMatcher.getHypothesisValues());
+                matchUploadable.setSecondValues(fsMatcher.getReferenceValues());
+                matchUploadable.setFirstIsPresent(true);
+                matchUploadable.setFirstMatches(true);
+                matchUploadable.setSecondIsPresent(fsMatcher.hadPresent());
+                matchUploadable.setSecondMatches(matchingId != null);
 
                 if (matchingId != null) {
                     coOccurrenceCounts.incrementBoth();
@@ -194,6 +194,20 @@ class TypeCoOccurrenceEvaluation {
                         matchUploadable.setSecondId(searchHit.getId());
                         matchUploadable.setSecondPath(reference);
                         matchUploadable.setMatchType(MatchUploadable.MatchType.FALSE_NEGATIVE);
+                        matchUploadable.setDocumentId(documentId);
+                        matchUploadable.setFirstValues(fsMatcher.getReferenceValues());
+                        matchUploadable.setSecondValues(fsMatcher.getHypothesisValues());
+                        matchUploadable.setFirstIsPresent(fsMatcher.hadPresent());
+                        matchUploadable.setFirstMatches(false);
+                        matchUploadable.setSecondIsPresent(true);
+                        matchUploadable.setSecondMatches(true);
+
+                        @SuppressWarnings("unchecked")
+                        Map<String, Object> primaryLocation = (Map<String, Object>) featureStructure.get("primaryLocation");
+
+                        matchUploadable.setBegin(((int) primaryLocation.get("begin")));
+                        matchUploadable.setEnd(((int) primaryLocation.get("end")));
+
                         IndexRequestBuilder indexRequestBuilder = matchUploadable.buildRequest();
 
                         bulkRequestBuilder.add(indexRequestBuilder);
