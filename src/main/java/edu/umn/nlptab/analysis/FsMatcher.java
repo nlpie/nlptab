@@ -30,6 +30,7 @@ import javax.annotation.Nullable;
 import java.util.Collection;
 import java.util.Map;
 import java.util.function.Predicate;
+import java.util.stream.Collectors;
 
 /**
  * Searches matches for a feature structure in one system to a feature structure in another system.
@@ -39,35 +40,18 @@ import java.util.function.Predicate;
  */
 class FsMatcher {
     private static final int SIZE = 50;
-    /**
-     * The ElasticSearch client to use.
-     */
     private final Client client;
-
-    /**
-     * The Feature Structure to find a match for.
-     */
-    @Nullable
-    private Map<String, Object> featureStructure;
-
-    @Nullable
-    private AnalysisConfig analysisConfig;
-
-    @Nullable
-    private UnitOfAnalysis target;
-
-    @Nullable
-    private Collection<FeatureValueTester> featureStructureTesters;
-
-    @Nullable
-    private BoolQueryBuilder boolQueryBuilder;
-
+    @Nullable private Map<String, Object> featureStructure;
+    @Nullable private AnalysisConfig analysisConfig;
+    @Nullable private UnitOfAnalysis target;
+    @Nullable private Collection<FeatureValueTester> featureStructureTesters;
+    @Nullable private BoolQueryBuilder boolQueryBuilder;
     private long totalHits;
-
-    @Nullable
-    private SearchHit[] hits;
-
+    @Nullable private SearchHit[] hits;
     private int from;
+    @Nullable private String referenceValues;
+    @Nullable private String hypothesisValues;
+    private boolean hadPresent = false;
 
     @Inject
     FsMatcher(Client client) {
@@ -130,6 +114,12 @@ class FsMatcher {
 
         featureStructureTesters = analysisConfig.createFeatureStructureTesters(featureStructure);
 
+        referenceValues = featureStructureTesters.stream()
+                .map(FeatureValueTester::getMappedValues)
+                .flatMap(Collection::stream)
+                .map(Object::toString)
+                .collect(Collectors.joining(";"));
+
         return this;
     }
 
@@ -166,9 +156,15 @@ class FsMatcher {
 
         while (from < totalHits) {
             for (SearchHit hit : hits) {
+                hadPresent = true;
+
                 Map<String, Object> featureStructure = hit.getSource();
 
                 Predicate<FeatureValueTester> testFs = featureTester -> featureTester.test(featureStructure);
+                hypothesisValues = featureStructureTesters.stream()
+                        .map(fst -> fst.getReferenceValue(featureStructure))
+                        .map(Object::toString)
+                        .collect(Collectors.joining(";"));
                 if (featureStructureTesters.stream().allMatch(testFs)) {
                     return hit.getId();
                 }
@@ -179,5 +175,23 @@ class FsMatcher {
         }
 
         return null;
+    }
+
+    boolean hadPresent() {
+        return hadPresent;
+    }
+
+    String getReferenceValues() {
+        if (referenceValues == null) {
+            return "";
+        }
+        return referenceValues;
+    }
+
+    String getHypothesisValues() {
+        if (hypothesisValues == null) {
+            return "";
+        }
+        return hypothesisValues;
     }
 }

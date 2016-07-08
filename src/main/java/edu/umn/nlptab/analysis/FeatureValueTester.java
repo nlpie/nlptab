@@ -45,7 +45,15 @@ class FeatureValueTester {
     }
 
     public boolean test(Map<String, Object> featureStructure) {
-        Object value = referenceFeature.getValueFromFeatureStructure(featureStructure);
+        Object value = getReferenceValue(featureStructure);
         return mappedValues.stream().anyMatch(mappedValue -> equivalenceTest.test(mappedValue, value));
+    }
+
+    public Object getReferenceValue(Map<String, Object> featureStructure) {
+        return referenceFeature.getValueFromFeatureStructure(featureStructure);
+    }
+
+    public Set<Object> getMappedValues() {
+        return mappedValues;
     }
 }

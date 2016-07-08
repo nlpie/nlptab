@@ -33,6 +33,7 @@ class NlptabModule extends AbstractModule {
         bind(DeleteSystemRestHandler.class).asEagerSingleton();
         bind(DeleteOrphanedDocumentsRestHandler.class).asEagerSingleton();
         bind(DeleteAnalysisRestHandler.class).asEagerSingleton();
+        bind(ExportAnalysisRestHandler.class).asEagerSingleton();
 
         bind(NlptabService.class).asEagerSingleton();
     }
