@@ -22,6 +22,8 @@ import org.elasticsearch.action.index.IndexRequestBuilder;
 import org.elasticsearch.client.Client;
 import org.elasticsearch.common.inject.Inject;
 import org.elasticsearch.common.inject.Provider;
+import org.elasticsearch.common.logging.ESLogger;
+import org.elasticsearch.common.logging.Loggers;
 import org.elasticsearch.search.SearchHit;
 
 import javax.annotation.Nullable;
@@ -35,7 +37,7 @@ import java.util.Map;
  * @since 1.0
  */
 class TypeCoOccurrenceEvaluation {
-
+    private static final ESLogger logger = Loggers.getLogger(TypeCoOccurrenceEvaluation.class);
     private final Client client;
     private final Provider<FsMatcher> fsMatcherProvider;
     private final CoOccurrenceCounts coOccurrenceCounts;
@@ -97,8 +99,10 @@ class TypeCoOccurrenceEvaluation {
         UnitOfAnalysis hypothesis = analysisConfig.getHypothesis();
         UnitOfAnalysis reference = analysisConfig.getReference();
         try (FsDataSource firstSource = new FsDataSource(client, documentId, hypothesis)) {
+            logger.debug("Iterating hypothesis feature structures.");
             FsDataSourceIterator firstIterator = new FsDataSourceIterator(firstSource);
             while (firstIterator.hasNext()) {
+                logger.trace("Found hypothesis feature structure.");
                 SearchHit searchHit = firstIterator.next();
                 Map<String, Object> featureStructure = searchHit.getSource();
 
@@ -130,6 +134,7 @@ class TypeCoOccurrenceEvaluation {
                 matchUploadable.setSecondMatches(matchingId != null);
 
                 if (matchingId != null) {
+                    logger.trace("Found match.");
                     coOccurrenceCounts.incrementBoth();
 
                     matchUploadable.setSecondId(matchingId);
@@ -139,6 +144,7 @@ class TypeCoOccurrenceEvaluation {
 
                     bulkRequestBuilder.add(indexRequestBuilder);
                 } else {
+                    logger.trace("Couldn't find match, finding closest.");
                     String closestId = closestFsFinderProvider.get()
                             .withDocumentId(documentId)
                             .withFeatureStructure(featureStructure)
@@ -158,6 +164,7 @@ class TypeCoOccurrenceEvaluation {
                 }
 
                 if (bulkRequestBuilder.numberOfActions() >= 2000) {
+                    logger.debug("Uploading 2000 matches.");
                     bulkRequestBuilder.execute();
                     bulkRequestBuilder = client.prepareBulk();
                 }
@@ -166,6 +173,7 @@ class TypeCoOccurrenceEvaluation {
 
         if (!analysisConfig.isHitMiss()) {
             try (FsDataSource secondSource = new FsDataSource(client, documentId, reference)) {
+                logger.debug("Iterating reference feature structures.");
                 FsDataSourceIterator secondIterator = new FsDataSourceIterator(secondSource);
 
                 while (secondIterator.hasNext()) {

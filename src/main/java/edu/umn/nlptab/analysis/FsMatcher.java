@@ -163,6 +163,7 @@ class FsMatcher {
                 Predicate<FeatureValueTester> testFs = featureTester -> featureTester.test(featureStructure);
                 hypothesisValues = featureStructureTesters.stream()
                         .map(fst -> fst.getReferenceValue(featureStructure))
+                        .map(obj -> obj == null ? "null" : obj)
                         .map(Object::toString)
                         .collect(Collectors.joining(";"));
                 if (featureStructureTesters.stream().allMatch(testFs)) {

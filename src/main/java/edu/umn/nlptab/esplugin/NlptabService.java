@@ -20,6 +20,8 @@ import com.google.common.base.Preconditions;
 import org.elasticsearch.ElasticsearchException;
 import org.elasticsearch.common.component.AbstractLifecycleComponent;
 import org.elasticsearch.common.inject.Inject;
+import org.elasticsearch.common.logging.ESLogger;
+import org.elasticsearch.common.logging.Loggers;
 import org.elasticsearch.common.settings.Settings;
 import org.elasticsearch.common.util.concurrent.EsExecutors;
 import org.elasticsearch.env.Environment;
@@ -36,6 +38,8 @@ import java.util.concurrent.*;
  * @since 1.0
  */
 class NlptabService extends AbstractLifecycleComponent<NlptabService> {
+    private static final ESLogger logger = Loggers.getLogger(NlptabService.class);
+
     private final Environment environment;
     /**
      * Executor service for running tasks. Is null until service start and is shutdown along with the nlp-tab service.
@@ -54,7 +58,29 @@ class NlptabService extends AbstractLifecycleComponent<NlptabService> {
 
     @Override
     protected void doStart() throws ElasticsearchException {
-        executorService = Executors.newFixedThreadPool(2, EsExecutors.daemonThreadFactory("nlptab"));
+        executorService = new ThreadPoolExecutor(2, 2, 0L, TimeUnit.MILLISECONDS, new LinkedBlockingQueue<>(),
+                EsExecutors.daemonThreadFactory("nlptab")) {
+            @Override
+            protected void afterExecute(Runnable r, Throwable t) {
+                super.afterExecute(r, t);
+                logger.debug("Completed running nlptab task");
+                if (t == null && r instanceof Future<?>) {
+                    try {
+                        Object result = ((Future) r).get();
+                    } catch (InterruptedException e) {
+                        Thread.currentThread().interrupt();
+                    } catch (ExecutionException e) {
+                        t = e.getCause();
+                    } catch (CancellationException ce) {
+                        t = ce;
+                    }
+                }
+
+                if (t != null) {
+                    logger.error("Error while executing task.", t);
+                }
+            }
+        };
 
         System.setProperty("uima.datapath", environment.tmpFile().toString());
     }
