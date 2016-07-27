@@ -114,9 +114,10 @@ class FsMatcher {
 
         featureStructureTesters = analysisConfig.createFeatureStructureTesters(featureStructure);
 
-        referenceValues = featureStructureTesters.stream()
+        hypothesisValues = featureStructureTesters.stream()
                 .map(FeatureValueTester::getMappedValues)
                 .flatMap(Collection::stream)
+                .map(obj -> obj == null ? "null" : obj)
                 .map(Object::toString)
                 .collect(Collectors.joining(";"));
 
@@ -130,6 +131,13 @@ class FsMatcher {
         prepare(analysisConfig.getHypothesis());
 
         featureStructureTesters = analysisConfig.createConverseFeatureStructureTesters(featureStructure);
+
+        hypothesisValues = featureStructureTesters.stream()
+                .map(FeatureValueTester::getMappedValues)
+                .flatMap(Collection::stream)
+                .map(obj -> obj == null ? "null" : obj)
+                .map(Object::toString)
+                .collect(Collectors.joining(";"));
 
         return this;
     }
@@ -161,7 +169,7 @@ class FsMatcher {
                 Map<String, Object> featureStructure = hit.getSource();
 
                 Predicate<FeatureValueTester> testFs = featureTester -> featureTester.test(featureStructure);
-                hypothesisValues = featureStructureTesters.stream()
+                referenceValues = featureStructureTesters.stream()
                         .map(fst -> fst.getReferenceValue(featureStructure))
                         .map(obj -> obj == null ? "null" : obj)
                         .map(Object::toString)
