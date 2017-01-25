@@ -49,14 +49,14 @@ Other Resources
 ### BioMedICUS
 
 *   [Demo](http://athena.ahc.umn.edu/biomedicus/)
-*   [Source Code](https://bitbucket.org/nlpie/biomedicus)
+*   [Source Code](https://github.com/nlpie/biomedicus)
 
 ### NLP-TAB
 
 *   [Demo](http://athena.ahc.umn.edu/nlptab)
-*   [Java Source Code](http://bitbucket.org/nlpie/nlptab)
-*   [Web-app Source Code](http://bitbucket.org/nlpie/nlptab-webapp)
-*   [Corpus](http://bitbucket.org/nlpie/nlptab-corpus)
+*   [Java Source Code](https://github.com/nlpie/nlptab)
+*   [Web-app Source Code](https://github.com/nlpie/nlptab-webapp)
+*   [Corpus](https://github.com/nlpie/nlptab-corpus)
 
 ### NLP/IE Group Resources
 
