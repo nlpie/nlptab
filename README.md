@@ -24,7 +24,7 @@ Type system analysis performs the comparison between annotation types generated 
 The type systems screen allows for users to explore the type systems that have been uploaded to the system, browsing the individual types in each system. Information included on the type systems page:
 
 ### Elasticsearch backend
-NLP-TAB uses an Elasticsearch backend to store Common Annotation Structure (CAS) information produced by each NLP system being compared for each document in the collection. A read-only api to the backend is accessible at [athena.ahc.umn.edu/elasticsearch] For more information on elasticsearch, you can visit their website at [elasticsearch.org].
+NLP-TAB uses an Elasticsearch backend to store Common Annotation Structure (CAS) information produced by each NLP system being compared for each document in the collection. A read-only api to the backend is accessible at [athena.ahc.umn.edu/elasticsearch](http://athena.ahc.umn.edu/elasticsearch) For more information on elasticsearch, you can visit their website at [elasticsearch.org](http://www.elasticsearch.org).
 
 ## Prerequisites
 1. An ElasticSearch server running version 2.1.0.
