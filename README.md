@@ -1,8 +1,4 @@
-# Natural Language Processing Type and Annotation Browser (NLP-TAB)
-A system for integration and visualization of diverse biomedical NLP applications.
-
-
-## About
+# Natural Language Processing Type and Annotation Browser
 NLP-TAB is a web-based system designed to allow researchers and developers of Natural Language Processing (NLP) systems
 to compare the output of several disparate NLP systems to each other or to a manually created reference standard.
 The comparison is performed by running the NLP systems on a single corpus of text with subsequent statistical analysis
