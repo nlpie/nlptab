@@ -39,7 +39,7 @@ public class ZipSystemIndexingFiles implements SystemIndexingFiles {
     private final int count;
 
     ZipSystemIndexingFiles(Path zipPath, boolean useXCas) throws IOException {
-        FileSystem zipFileSystem = FileSystems.newFileSystem(zipPath, null);
+        FileSystem zipFileSystem = FileSystems.newFileSystem(zipPath, ClassLoader.getSystemClassLoader());
 
         Iterator<Path> iterator = zipFileSystem.getRootDirectories().iterator();
 

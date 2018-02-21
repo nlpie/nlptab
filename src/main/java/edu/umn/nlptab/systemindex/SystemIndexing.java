@@ -119,9 +119,9 @@ public class SystemIndexing {
             CAS cas = CasCreationUtils.createCas(typeSystem, null, null, tuningProperties, resourceManager);
 
             if (systemIndexingSettings.useXCas()) {
-                XCASDeserializer.deserialize(inputStream, cas);
+                XCASDeserializer.deserialize(inputStream, cas, true);
             } else {
-                XmiCasDeserializer.deserialize(inputStream, cas);
+                XmiCasDeserializer.deserialize(inputStream, cas, true);
             }
 
             CasProcessorSettings casProcessorSettings = new CasProcessorSettings(systemIndexingSettings.getIndex(),
